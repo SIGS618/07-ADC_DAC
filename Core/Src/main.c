@@ -70,7 +70,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim == &htim6) {
     int len = sprintf(tx_str, "adc1 value: %04d, voltage: %.2f V", dac_data, 3.3*dac_data/4095);
-    HAL_UART_Transmit_IT(&huart1, (uint8_t *) tx_str, len); // 20256 B
+    HAL_UART_Transmit_DMA(&huart1, (uint8_t *) tx_str, len); // 20256 B
 //    HAL_UART_Transmit_IT(&huart1, (uint8_t *)"Hello, World!", 13); // 13260 B
   }
 }
