@@ -110,7 +110,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc1.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
     hdma_adc1.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
     hdma_adc1.Init.MemBurst = DMA_MBURST_INC8;
-    hdma_adc1.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    hdma_adc1.Init.PeriphBurst = DMA_PBURST_INC8;
     if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
     {
       Error_Handler();

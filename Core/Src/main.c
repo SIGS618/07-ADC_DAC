@@ -27,9 +27,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdio.h"
-
-#include "retarget.h"
+#include "printf.h"
 #include "buffer.h"
 /* USER CODE END Includes */
 
@@ -51,6 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+char tx_str[50];
 // ADC1_IN13读数, 由DMA自动搬运
 uint16_t adc1_data[DMA_BUFFER_SIZE*2];
 uint16_t dac_data;
@@ -70,7 +69,9 @@ void SystemClock_Config(void);
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim == &htim6) {
-    printf("adc1 value: %04d, voltage: %.2f V", dac_data, 3.3*dac_data/4095);
+    int len = sprintf(tx_str, "adc1 value: %04d, voltage: %.2f V", dac_data, 3.3*dac_data/4095);
+    HAL_UART_Transmit_DMA(&huart1, (uint8_t *) tx_str, len); // 20256 B
+//    HAL_UART_Transmit_IT(&huart1, (uint8_t *)"Hello, World!", 13); // 13260 B
   }
 }
 
@@ -132,16 +133,16 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM6_Init();
   MX_DAC_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-  // 将printf重定向到串口huart1
-  RetargetInit(&huart1);
+  // 启用Tim6及其中断和Tim7
+  HAL_TIM_Base_Start_IT(&htim6);
+  HAL_TIM_Base_Start_IT(&htim7);
   // HAL库中已经没有采样校准函数, HAL或许已经默认校准
   // 开启ADC的DMA模式
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_data, DMA_BUFFER_SIZE*2);
   // 开启DAC的DMA模式
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)&dac_data, 1, DAC_ALIGN_12B_R);
-  // 启用Tim6及其中断
-  HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
